@@ -1,0 +1,3 @@
+# Hook scripts must keep LF line endings on every OS: a CRLF shebang line
+# ("#!/usr/bin/env node\r") makes git fail to run the hook.
+.claude/hooks/* text eol=lf

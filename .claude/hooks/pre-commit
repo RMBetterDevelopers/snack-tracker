@@ -1,0 +1,77 @@
+#!/usr/bin/env node
+// Git pre-commit hook: blocks commits that stage secret files.
+// Activated with: git config core.hooksPath .claude/hooks
+//
+// Blocked: .env and .env.* files (except .env.example), *.key, *.pem, secrets.json.
+// Only files being added or changed are checked; deleting one of them is allowed.
+
+import { execFileSync } from "node:child_process";
+import path from "node:path";
+
+const ALLOWED_NAMES = new Set([".env.example"]);
+
+const RULES = [
+  {
+    matches: (name) => name === ".env" || name.startsWith(".env."),
+    reason: "environment file: holds secrets such as DATABASE_URL. Put placeholders in .env.example instead.",
+  },
+  {
+    matches: (name) => name.endsWith(".key"),
+    reason: "private key file.",
+  },
+  {
+    matches: (name) => name.endsWith(".pem"),
+    reason: "certificate or private key (PEM) file.",
+  },
+  {
+    matches: (name) => name === "secrets.json",
+    reason: "secrets file.",
+  },
+];
+
+function stagedFiles() {
+  const output = execFileSync(
+    "git",
+    ["diff", "--cached", "--name-only", "--diff-filter=ACMR", "-z"],
+    { encoding: "utf8" },
+  );
+  return output.split("\0").filter(Boolean);
+}
+
+function findBlocked(files) {
+  const blocked = [];
+  for (const file of files) {
+    const name = path.posix.basename(file).toLowerCase();
+    if (ALLOWED_NAMES.has(name)) continue;
+    const rule = RULES.find((r) => r.matches(name));
+    if (rule) blocked.push({ file, reason: rule.reason });
+  }
+  return blocked;
+}
+
+const blocked = findBlocked(stagedFiles());
+
+if (blocked.length > 0) {
+  const lines = [
+    "",
+    "COMMIT BLOCKED: secret files are staged",
+    "",
+    "These files must never be committed, because anyone with access to the",
+    "repository (now or later, in its history) could read them:",
+    "",
+    ...blocked.map(({ file, reason }) => `  - ${file}\n      ${reason}`),
+    "",
+    "To fix it, unstage each file (this keeps it on your disk):",
+    "",
+    ...blocked.map(({ file }) => `  git rm --cached "${file}"`),
+    "",
+    "Then add it to .gitignore so it is not staged again.",
+    "If a real secret was ever committed or pushed before, rotate it: removing",
+    "the file now does not remove it from history.",
+    "",
+  ];
+  process.stderr.write(lines.join("\n"));
+  process.exit(1);
+}
+
+process.exit(0);
