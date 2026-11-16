@@ -40,3 +40,6 @@ Thumbs.db
 
 # --- Claude Code: personal, machine-specific settings ---
 .claude/settings.local.json
+
+# --- Playwright saved sign-in state ---
+playwright/.auth/
