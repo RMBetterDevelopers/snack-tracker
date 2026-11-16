@@ -5,6 +5,13 @@ import { NextResponse, type NextRequest } from "next/server";
 // It never queries the database. The real check is in app/(app)/layout.tsx
 // and in every Server Action.
 export function proxy(request: NextRequest) {
+  // Server Action requests carry a `Next-Action` header. A redirect here would
+  // hand the action client an HTML page it cannot parse, so let them through:
+  // each action checks the session itself and returns UNAUTHENTICATED.
+  if (request.headers.has("next-action")) {
+    return NextResponse.next();
+  }
+
   const sessionCookie = getSessionCookie(request);
 
   if (!sessionCookie) {
