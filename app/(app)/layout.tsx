@@ -1,4 +1,6 @@
+import Link from "next/link";
 import { redirect } from "next/navigation";
+import { Button } from "@/components/ui/button";
 import { signOut } from "@/features/auth/actions";
 import { SignOutButton } from "@/features/auth/components/sign-out-button";
 import { getCurrentSession } from "@/lib/session";
@@ -16,9 +18,14 @@ export default async function AppLayout({ children }: { children: React.ReactNod
       <header className="border-b">
         <div className="mx-auto flex w-full max-w-3xl flex-wrap items-center justify-between gap-2 px-4 py-3">
           <span className="font-semibold">Office Snack Tracker</span>
-          <form action={signOut}>
-            <SignOutButton />
-          </form>
+          <nav className="flex items-center gap-2">
+            <Button asChild variant="ghost" size="sm">
+              <Link href="/shopping-list">Shopping list</Link>
+            </Button>
+            <form action={signOut}>
+              <SignOutButton />
+            </form>
+          </nav>
         </div>
       </header>
       <main className="mx-auto w-full max-w-3xl flex-1 px-4 py-6">{children}</main>
