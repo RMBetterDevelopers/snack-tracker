@@ -6,3 +6,8 @@ export const markAsBoughtSchema = z.object({
 });
 
 export type MarkAsBoughtInput = z.infer<typeof markAsBoughtSchema>;
+
+// The [id] segment of /items/[id]. Validated before it reaches Prisma.
+export const itemDetailParamsSchema = z.object({ id: z.cuid() });
+
+export type ItemDetailParams = z.infer<typeof itemDetailParamsSchema>;

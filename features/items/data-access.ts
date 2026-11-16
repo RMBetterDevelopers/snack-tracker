@@ -22,6 +22,19 @@ export async function listShoppingListItems() {
 
 export type ShoppingListItem = Awaited<ReturnType<typeof listShoppingListItems>>[number];
 
+/**
+ * One item for the item detail page, or null if no item has this id.
+ * Archived items are returned too: the page shows them with an "Archived" note.
+ */
+export async function getItem(itemId: string) {
+  return prisma.item.findUnique({
+    where: { id: itemId },
+    select: { id: true, name: true, category: true, status: true, archived: true },
+  });
+}
+
+export type ItemDetail = NonNullable<Awaited<ReturnType<typeof getItem>>>;
+
 export type MarkItemBoughtOutcome =
   | { kind: "BOUGHT"; oldStatus: "RUNNING_LOW" | "OUT" }
   | { kind: "ALREADY_IN_STOCK" }

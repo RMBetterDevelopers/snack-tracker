@@ -2,7 +2,7 @@ import { randomUUID } from "node:crypto";
 import { afterAll, beforeEach, describe, expect, it } from "vitest";
 import type { ItemCategory, ItemStatus, PrismaClient } from "@/generated/prisma/client";
 import { createTestDatabaseClient, resetDatabase } from "@/tests/helpers/reset-database";
-import { listShoppingListItems, markItemBought } from "./data-access";
+import { getItem, listShoppingListItems, markItemBought } from "./data-access";
 
 // Separate client for arranging and asserting. The functions under test use
 // lib/db, which points at the same test database under Vitest.
@@ -108,6 +108,38 @@ describe("listShoppingListItems", () => {
     await createItem({ name: "Espresso beans", status: "IN_STOCK" });
 
     expect(await listShoppingListItems()).toEqual([]);
+  });
+});
+
+describe("getItem", () => {
+  it("returns exactly id, name, category, status and archived for an existing item", async () => {
+    const item = await createItem({ name: "Oat milk", category: "COFFEE", status: "RUNNING_LOW" });
+
+    expect(await getItem(item.id)).toEqual({
+      id: item.id,
+      name: "Oat milk",
+      category: "COFFEE",
+      status: "RUNNING_LOW",
+      archived: false,
+    });
+  });
+
+  it("returns an archived item with archived: true", async () => {
+    const item = await createItem({ name: "Old crisps", category: "SNACK", status: "OUT", archived: true });
+
+    expect(await getItem(item.id)).toEqual({
+      id: item.id,
+      name: "Old crisps",
+      category: "SNACK",
+      status: "OUT",
+      archived: true,
+    });
+  });
+
+  it("returns null for an unknown id", async () => {
+    await createItem({});
+
+    expect(await getItem(UNKNOWN_ITEM_ID)).toBeNull();
   });
 });
 
