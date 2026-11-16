@@ -1,14 +1,7 @@
-import type { ItemCategory } from "@/generated/prisma/client";
 import type { ShoppingListItem } from "../data-access";
+import { CATEGORY_LABELS } from "./category-labels";
 import { ItemStatusBadge } from "./item-status-badge";
 import { MarkAsBoughtButton } from "./mark-as-bought-button";
-
-const CATEGORY_LABELS: Record<ItemCategory, string> = {
-  SNACK: "Snack",
-  COFFEE: "Coffee",
-  SODA: "Soda",
-  OTHER: "Other",
-};
 
 export function ShoppingList({ items }: { items: ShoppingListItem[] }) {
   if (items.length === 0) {
