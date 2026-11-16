@@ -1,0 +1,42 @@
+# --- Secrets: never commit these (also enforced by .claude/hooks/pre-commit) ---
+.env
+.env.*
+!.env.example
+*.key
+*.pem
+secrets.json
+
+# --- Dependencies ---
+node_modules/
+.pnpm-store/
+
+# --- Next.js build output ---
+.next/
+out/
+next-env.d.ts
+*.tsbuildinfo
+
+# --- Generated Prisma client ---
+generated/
+
+# --- Tests ---
+coverage/
+test-results/
+playwright-report/
+blob-report/
+playwright/.cache/
+
+# --- Logs ---
+*.log
+npm-debug.log*
+pnpm-debug.log*
+
+# --- OS and editor files ---
+.DS_Store
+Thumbs.db
+.vscode/*
+!.vscode/extensions.json
+.idea/
+
+# --- Claude Code: personal, machine-specific settings ---
+.claude/settings.local.json
